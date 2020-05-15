@@ -1,6 +1,5 @@
 // PISKEL starduino
 
-
 // Peter Gullberg 2018-02-08
 // Trinket pro 5V/16Mhz, using serial upload
 // A Adafruit dotstar 8x8 pixel LCD
