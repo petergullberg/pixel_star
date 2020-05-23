@@ -1,14 +1,14 @@
 # pixel_star
-Arduino 8x8 LED-display retro image sprite viewer
-The objective of this repo is to make a small image viewer of retro-sprites using a small Arduino, it also has a scroll-text function.
+Pixel start is a small wearble retro image sprite viewer project using an Arduino Tringet Pro (5V) and a 8x8 DotStar-display.
+The objective of this repo is to make a small image viewer of retro-sprites using a small Arduino, it also has a text-scroll function.
 It allows you to scroll text and show small 8x8 image sprites
 
 # How it works,
- the code implement a small image viewer, which take a predefined struct, and displays it. the images are located in the image_data.h include file, each struct may contain one or more images.
+ the code implement a small "image" viewer, which take a predefined C-code struct, and displays it. the images are located in the image_data.h include file, each struct may contain one or more images.
 The device also has a text-viewer, which allows you to display scrolling text. Just call the function with the text you want to show.
-# Hardawre used
-// Trinket pro 5V/16Mhz, using serial upload
-// A Adafruit dotstar 8x8 pixel LCD
+# Hardware used
+Trinket pro 5V/16Mhz, using serial upload
+A Adafruit dotstar 8x8 pixel LCD.
 
 # make your own sprites
 piskel is a simple web-program that allows you to create your own sprites.

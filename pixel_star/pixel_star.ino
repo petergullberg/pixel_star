@@ -1,4 +1,4 @@
-// PISKEL starduino
+// PISKEL stars
 
 // Peter Gullberg 2018-02-08
 // Trinket pro 5V/16Mhz, using serial upload
