@@ -1,3 +1,4 @@
+#define PROGMEM 
 const uint8_t gamma8[] PROGMEM = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
@@ -160,7 +161,7 @@ static const uint32_t heart_data_red_1[1][64] PROGMEM = {
 
 
 
-static const uint32_t _X[][64] PROGMEM = {
+static const uint32_t X[][64] PROGMEM = {
 
   /* Green ghost */
   {

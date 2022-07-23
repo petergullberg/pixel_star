@@ -4,6 +4,11 @@
 // Trinket pro 5V/16Mhz, using serial upload
 // A Adafruit dotstar 8x8 pixel LCD
 
+/*
+ * Have some kind of timing/memory bug, that 
+ * Needs to be investigated.
+ */
+
 #include <stdint.h>
 #include <Adafruit_DotStar.h>
 // I have in mind to also support neopixel as well, that would be "clever"
@@ -27,8 +32,8 @@ void glcd_move_left( uint8_t clear_last_col );
 #define NUMPIXELS (FRAME_WIDTH * FRAME_HEIGHT) // Number of LEDs in strip
 
 // Here's how to control the LEDs from any two pins:
-#define DATAPIN    4
-#define CLOCKPIN   5
+#define DATAPIN    22
+#define CLOCKPIN   18
 Adafruit_DotStar strip = Adafruit_DotStar(
                            NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BGR);
 // The last parameter is optional -- this is the color data order of the
@@ -150,6 +155,7 @@ void loop_pixel(void)
   }
   strip.setPixelColor(63, 0x00000000 );
   strip.show();
+  Serial.printf("!");
 }
 
 //#include "col.h"
@@ -163,6 +169,7 @@ void clearPiskel( int ms)
     strip.setPixelColor(pixel, 0x00000000);
   }
   strip.show();
+  Serial.printf("x");
 
 }
 
@@ -194,19 +201,25 @@ void glcd_write_col(unsigned char c, unsigned char x, unsigned char y)
 {
 
   if ( glcd_scroll ) {
+      //Serial.printf("Move Left\n");
       glcd_move_left(0);   // Move old content
         x=FRAME_WIDTH-1; // Write at right-most column after move.
   }
 
   for (int cnt = 0; cnt < 7; cnt++ ) {
+    //Serial.printf("cnt\n");
     if ( c & (1 << cnt) )
       strip.setPixelColor(get_screen_pos(x, y + cnt), glcd_red,glcd_green,glcd_blue);
     else
       strip.setPixelColor(get_screen_pos(x, y + cnt), 0, 0, 0);
+
+    //Serial.printf("1");
   }
   if ( glcd_scroll ) {
+    //Serial.printf("cnt\n");
     strip.show();  // Turn all LEDs off ASAP
     delay(glcd_col_timing);
+    //Serial.printf("2");
   }
 
 }
@@ -214,36 +227,43 @@ void glcd_move_left( uint8_t clear_last_col )
 {
   int x, y;
 
-  for (x=1;x < FRAME_WIDTH; x++) {
-    for ( y=0; y< FRAME_HEIGHT; y++ ) {
+  for (x=1; x < FRAME_WIDTH; x++ ) {
+    for ( y=0; y<FRAME_HEIGHT; y++ ) {
       strip.setPixelColor(get_screen_pos(x-1,y), strip.getPixelColor( get_screen_pos(x,y)) );
+
     }
   }
   if ( clear_last_col )
     glcd_write_col(0x00, 0, FRAME_WIDTH );
-
 }
 
 
-byte glcd_putc_5x7(char c, byte x, byte y)
+void glcd_putc_5x7(char c, byte x, byte y)
 {
-  int i, col, temp;
+  int i, temp;
 
+  Serial.printf("putc\n");
   /* write ascii character */
-  for (i = 0; i <= 4; i++)
-  {
+  for (i = 0; i < 4; i++) {
+    Serial.printf("prepare linen");
     /*cloumns*/
+    Serial.printf("col\n");
     temp = Font5x7[(c - 0x20) * 5 + (i)];
     glcd_write_col(temp, x + i, y);
+    Serial.printf("6\n");
   }
   if ( glcd_scroll ) {      // Add one column
+    Serial.printf("scrol\n");
     glcd_write_col(0x00,x,y);
   }
   else {
     strip.show();
     delay(glcd_col_timing*10);
+    Serial.printf("7\n");
 
   }
+
+  Serial.printf("7.1\n");
 }
 
 #if 0
@@ -253,7 +273,7 @@ uint8_t glcd_puts_5x7(unsigned char *s, int len, uint8_t page, uint8_t col, uint
   uint8_t current_col;
 
   for (i = 0; i < len; i++) {
-    current_col = glcd_putc_5x7(s[i], page, col, cs, cement);
+    current_col = glcd_ putc_5x7(s[i], page, col, cs, cement);
     col = current_col + 1;
     page = current_page;
     cs = current_cs;
@@ -267,19 +287,22 @@ uint8_t glcd_puts_5x7(unsigned char *s, int len, uint8_t page, uint8_t col, uint
 #endif
 
 
-void loop_text( char *string)
+void loop_text( const char *string)
 {
 //  char *string = "* * Peter * *  ";
   byte len;
 
   len = strlen(string);
+  Serial.printf("len=%d\n",len);
   for ( int cnt = 0; cnt < len; cnt++ ) {
     glcd_putc_5x7(string[cnt], 1, 1);
     if ( ! glcd_scroll ) {
        strip.show();  // Turn all LEDs off ASAP
       delay(300);
     }
+    Serial.printf("8\n");
   }
+  Serial.printf("9");
 
 }
 
@@ -332,6 +355,9 @@ void setup() {
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
   clock_prescale_set(clock_div_1); // Enable 16 MHz on Trinket
 #endif
+  Serial.begin(115200);
+  delay(100);
+  Serial.printf("Starting\n");
   strip.begin(); // Initialize pins for output
   strip.show();  // Turn all LEDs off ASAP
   strip.setBrightness(255);   // Set default brightness
@@ -344,7 +370,22 @@ void loop(void)
 
   delay(3000);
 
-  glcd_scroll = 0;
+
+  glcd_scroll = 1;
+
+  loop_text( "*** ");
+  loop_text( "*** ");
+  loop_text( "*** ");
+  loop_text( "*** ");
+  loop_text( "*** ");
+  clearPiskel(500);
+  delay(3000);
+
+  glcd_scroll = 1;
+
+  loop_text( "* * * ");
+  Serial.printf("Y");
+  clearPiskel(500);
 
   piskel_scroll_left((uint32_t *)& arcade_rockstars, NORM_INTENSITY);
   piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
@@ -376,7 +417,7 @@ void loop(void)
   show_piskel((uint32_t *)&  heart_data_red_1, FRAMES(heart_data_red_1), 3000, WAIT_BETWEEN, NORM_INTENSITY);
   clearPiskel(500);
 
-  show_piskel((uint32_t *) & _X, FRAMES(_X), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+  show_piskel((uint32_t *) & X, FRAMES(X), 1500, WAIT_BETWEEN, NORM_INTENSITY);
   clearPiskel(500);
 
   show_pumping_heart();
