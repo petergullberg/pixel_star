@@ -212,15 +212,37 @@ byte get_screen_pos(byte x, byte y)
   return (y * FRAME_HEIGHT) + (FRAME_WIDTH - x - 1);
 }
 
-byte glcd_red=0x1F;
+// Foreground colours for text operations...
+byte glcd_red;
+byte glcd_green;
+byte glcd_blue;
+// Background colours
+byte glcd_bg_red;
+byte glcd_bg_green;
+byte glcd_bg_blue;
 
-byte glcd_green=0x00;
-byte glcd_blue=0x00;
+void glcd_setDefaultColors( void ) 
+{
+  glcd_red=0x1F;
+  glcd_green=0x00;
+  glcd_blue=0x00;
+
+  glcd_bg_red=0x00;
+  glcd_bg_green=0x00;
+  glcd_bg_blue=0x00;
+}
+
+// Background colours ??
 
 void glcd_setColor(byte r, byte g, byte b)
 {
   glcd_red=r;glcd_green=g;glcd_blue=b;
 }
+void glcd_setBgColor(byte r, byte g, byte b)
+{
+  glcd_bg_red=r;glcd_bg_green=g;glcd_bg_blue=b;
+}
+
 
 void glcd_write_col(unsigned char c, unsigned char x, unsigned char y)
 {
@@ -236,7 +258,8 @@ void glcd_write_col(unsigned char c, unsigned char x, unsigned char y)
     if ( c & (1 << cnt) )
       strip.setPixelColor(get_screen_pos(x, y + cnt), glcd_red,glcd_green,glcd_blue);
     else
-      strip.setPixelColor(get_screen_pos(x, y + cnt), 0, 0, 0);
+      strip.setPixelColor(get_screen_pos(x, y + cnt), glcd_bg_red,glcd_bg_green,glcd_bg_blue);
+      //strip.setPixelColor(get_screen_pos(x, y + cnt), 0, 0, 0);
 
     //Serial.printf("1");
   }
@@ -376,6 +399,7 @@ void setAllPixel( float thresh )
 /* SETUP */
 void PIXEL_setup(void) {
 
+  glcd_setDefaultColors();
   strip.begin(); // Initialize pins for output
   strip.show();  // Turn all LEDs off ASAP
   strip.setBrightness(255);   // Set default brightness
@@ -388,80 +412,116 @@ void PIXEL_loop(void)
 {
   float temp, humidity;
   char buf[64];
-  delay(3000);
+  static int state = 0;
+ 
+  Serial.printf("state:%d\n",state);
+  switch ( state++ ) {
+    case 0:
+      delay(3000);    // keep, this is a hard-code stuff!
+      glcd_scroll = 1;
+      loop_text( "*** ");
+      clearPiskel(500);
+      delay(3000);
+      break;
+    case 1:
+      // Violet / purple	4	204, 68, 204    
+    	// Violet #0xCC 0x44 0xCC
+      // Blue	#0x00 0x00 0xAA
 
+      //glcd_setBgColor(0xCC,0x44, 0xCC);
+      loop_text( "  ");
+      glcd_setColor(0xCC,0x44, 0xCC);
+      //glcd_setBgColor(0x00, 0x00, 0xAA);
+      loop_text( "?SYNTAX ERROR ");
+      //glcd_setBgColor(0xCC,0x44, 0xCC);
+      loop_text( "  ");
+      clearPiskel(500);
+      delay(3000);
+      //loop_text( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrustuvwxyz0123456789!\"#¤%&/()=?");
+      //clearPiskel(500);
+      //delay(3000);
+      glcd_setDefaultColors(); 
+      break;
+    case 2:
+      sensor_read(&temp,&humidity);
+      if ( temp > 29 ) {
+        sprintf(buf,"Warm! %2.1f ", temp);
+      }
+      else {
+        sprintf(buf,"Temp:%2.1f ", temp);
+      }
+      loop_text(buf);
+      Serial.printf(buf);
 
-  glcd_scroll = 1;
+      Serial.printf("%f %f\n", temp, humidity);
 
-  loop_text( "*** ");
-  clearPiskel(500);
-  delay(3000);
+      clearPiskel(500);
+      delay(3000);
+      break;
+    case 3:
+      glcd_scroll = 1;
+      loop_text( "*** ");
+      Serial.printf("Y");
+      clearPiskel(500);
+      break;
+    case 4:
+      piskel_scroll_left((uint32_t *)& arcade_rockstars, NORM_INTENSITY);
+      piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
+      break;
+    case 5:
+      piskel_scroll_left((uint32_t *)& arcade_rockstars[1], NORM_INTENSITY);
+      piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
+      break;
+    case 6:
+      piskel_scroll_left((uint32_t *)& arcade_rockstars[2], NORM_INTENSITY);
+      piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
+      clearPiskel(500);
+      break;
+    case 7:
+      loop_text( "* * * ");
+      clearPiskel(500);
+      delay(3000);
+      break;
+    case 8:
+      show_piskel((uint32_t *)& arcade_rockstars, FRAMES(arcade_rockstars), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(500);
+      break;
+    case 9:
+      show_piskel((uint32_t *)& arcade_rockstars, FRAMES(arcade_rockstars), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(500);
+      break;
+    case 10:
+      show_piskel((uint32_t *)& batman_2, FRAMES(batman_2), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(500);
 
-  //loop_text( "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrustuvwxyz0123456789!\"#¤%&/()=?");
-  //clearPiskel(500);
-  //delay(3000);
+      break;
+    case 11:
+      show_piskel((uint32_t *) & fmxwpow_data, FRAMES(fmxwpow_data), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(500);
+      break;
+    case 12:
+      show_piskel((uint32_t *)&  heart_data_red_1, FRAMES(heart_data_red_1), 3000, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(500);
+      break;
+    case 13:
+      show_piskel((uint32_t *) & X, FRAMES(X), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(500);
+      break;
+    case 14:
+      show_pumping_heart();
+      clearPiskel(WAIT_BETWEEN);
+      break;
+    case 15:
+      glcd_scroll = 1;
+      loop_text( "* * PeGe was here * *  ");
+      clearPiskel(WAIT_BETWEEN);
 
-  sensor_read(&temp,&humidity);
-  if ( temp > 29 ) {
-    sprintf(buf,"Warm! %fC ", temp);
+      break;
+    case 16:
+      show_piskel((uint32_t *)& arcade_rockstars, FRAMES(arcade_rockstars), 1500, WAIT_BETWEEN, NORM_INTENSITY);
+      clearPiskel(10);
+      break;
+    default:
+      state = 0;
   }
-  else {
-    sprintf(buf,"Temp:%2.1f C ", temp);
-  }
-  loop_text(buf);
-  Serial.printf(buf);
-
-  Serial.printf("%f %f\n", temp, humidity);
-
-  clearPiskel(500);
-  delay(3000);
-
-  glcd_scroll = 1;
-
-  loop_text( "*** ");
-  Serial.printf("Y");
-  clearPiskel(500);
-
-  piskel_scroll_left((uint32_t *)& arcade_rockstars, NORM_INTENSITY);
-  piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
-
-  piskel_scroll_left((uint32_t *)& arcade_rockstars[1], NORM_INTENSITY);
-  piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
-
-  piskel_scroll_left((uint32_t *)& arcade_rockstars[2], NORM_INTENSITY);
-  piskel_scroll_left((uint32_t *)& empty, NORM_INTENSITY);
-
-  clearPiskel(500);
-  
-  loop_text( "* * * ");
-  clearPiskel(500);
-  delay(3000);
-
-  show_piskel((uint32_t *)& arcade_rockstars, FRAMES(arcade_rockstars), 1500, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(500);
-
-  show_piskel((uint32_t *)& arcade_rockstars, FRAMES(arcade_rockstars), 1500, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(500);
-
-  show_piskel((uint32_t *)& batman_2, FRAMES(batman_2), 1500, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(500);
-
-  show_piskel((uint32_t *) & fmxwpow_data, FRAMES(fmxwpow_data), 1500, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(500);
-
-  show_piskel((uint32_t *)&  heart_data_red_1, FRAMES(heart_data_red_1), 3000, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(500);
-
-  show_piskel((uint32_t *) & X, FRAMES(X), 1500, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(500);
-
-  show_pumping_heart();
-
-  glcd_scroll = 1;
-  loop_text( "* * PeGe was here * *  ");
-  clearPiskel(WAIT_BETWEEN);
-
-  show_piskel((uint32_t *)& arcade_rockstars, FRAMES(arcade_rockstars), 1500, WAIT_BETWEEN, NORM_INTENSITY);
-  clearPiskel(10);
-
 }
