@@ -2,60 +2,7 @@
 #include "FFT_interrupt.h"
 #define audioPin 34 // Left or right channel audio positive lead connects here
 
-#if 0
-uint8_t *FFT_Sample(void)
-{}
-  for (int i = 0; i < 128; i++)
-  {
-    data[i] = analogRead(audioPin);
-    im[i] = 0;
-    Serial.printf("%d, ", data[i]);
-  }
-  Serial.printf("\n");
 
-    Serial.printf("loop\n");
-  fix_fft(data, im, 7, 0);
-
-  for (int i = 0; i < 64; i++) // only need N/2 elements of the array
-
-  {
-    data[i] = sqrt(data[i] * data[i] + im[i] * im[i]);
-  }
-  return data;
-}
-#endif
-
-
-/*
-
-	Example of use of the FFT library
-        Copyright (C) 2018 Enrique Condes
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
-
-/*
-  In this example, the Arduino simulates the sampling of a sinusoidal 1000 Hz
-  signal with an amplitude of 100, sampled at 5000 Hz. Samples are stored
-  inside the vReal array. The samples are windowed according to Hamming
-  function. The FFT is computed using the windowed samples. Then the magnitudes
-  of each of the frequencies that compose the signal are calculated. Finally,
-  the frequency spectrum magnitudes are printed. If you use the Arduino IDE
-  serial plotter, you will see a single spike corresponding to the 1000 Hz
-  frequency.
-*/
 
 #include "arduinoFFT.h"
 

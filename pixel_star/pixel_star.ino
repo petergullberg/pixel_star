@@ -42,6 +42,8 @@ void setup(void)
       break;
   }
 }
+extern void KNIGHTRIDER_loop(void);
+
 void loop(void)
 {
   switch (function) {
