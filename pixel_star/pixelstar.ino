@@ -425,6 +425,22 @@ void PIXEL_loop(void)
       delay(3000);
       break;
     case 1:
+      sensor_read(&temp,&humidity);
+      if ( temp > 29 ) {
+        sprintf(buf,"Warm! %2.1f %2.1f%RH", temp, humidity);
+      }
+      else {
+        sprintf(buf,"Temp:%2.1fC %2.1f%RH ", temp, humidity);
+      }
+      loop_text(buf);
+      Serial.printf(buf);
+
+      Serial.printf("%f %f\n", temp, humidity);
+
+      clearPiskel(500);
+      delay(3000);
+      break;
+    case 2:
       // Violet / purple	4	204, 68, 204    
     	// Violet #0xCC 0x44 0xCC
       // Blue	#0x00 0x00 0xAA
@@ -442,22 +458,6 @@ void PIXEL_loop(void)
       //clearPiskel(500);
       //delay(3000);
       glcd_setDefaultColors(); 
-      break;
-    case 2:
-      sensor_read(&temp,&humidity);
-      if ( temp > 29 ) {
-        sprintf(buf,"Warm! %2.1f ", temp);
-      }
-      else {
-        sprintf(buf,"Temp:%2.1f ", temp);
-      }
-      loop_text(buf);
-      Serial.printf(buf);
-
-      Serial.printf("%f %f\n", temp, humidity);
-
-      clearPiskel(500);
-      delay(3000);
       break;
     case 3:
       glcd_scroll = 1;
@@ -535,7 +535,7 @@ void PIXEL_loop(void)
       break;
     case 20:
       KNIGHTRIDER_setup();
-      for (int cnt =0; cnt < 308; cnt++ ) {
+      for (int cnt =0; cnt < 316; cnt++ ) {
         KNIGHTRIDER_loop();
       }
       break;

@@ -1,0 +1,9 @@
+<NotepadPlus>
+    <Project name="Pixelstar">
+        <File name="FFT_interrupt.ino" />
+        <File name="FFT_placa.ino" />
+        <File name="FFT_stuff.ino" />
+        <File name="pixel_star.ino" />
+        <File name="pixelstar.ino" />
+    </Project>
+</NotepadPlus>
